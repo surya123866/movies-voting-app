@@ -1,0 +1,16 @@
+body{
+  margin: 0;
+}
+*{
+  box-sizing: border-box;
+}
+
+.App{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #68acc7;
+}

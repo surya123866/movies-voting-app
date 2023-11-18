@@ -1,0 +1,58 @@
+@import "../../style-config/mixins.scss";
+
+.Loginform-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  .login-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+     @include small-screen {
+      max-width: 250px;
+     }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+       @include small-screen {
+         font-size: 20px;
+         margin-bottom: 12px;
+      }
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+       @include small-screen {
+         padding: 5px;
+      }
+
+      &:focus {
+        border-color: #007bff;
+      }
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+}
