@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BiSolidUpvote, BiSolidDownvote } from "react-icons/bi";
 import { format } from "date-fns";
+import ReactLoading from "react-loading";
 
 import "./index.scss";
 import Header from "../Header/Header";
@@ -9,6 +10,7 @@ import NoPoster from "../../No poster availble.jpg";
 
 const HomePage = () => {
   const [movies, setMovies] = useState([]);
+  const [Loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("movies");
   const [selectedLanguage, setSelectedLanguage] = useState("kannada");
   const [selectedGenre, setSelectedGenre] = useState("all");
@@ -19,21 +21,26 @@ const HomePage = () => {
   }, []);
 
   const fetchMovies = async () => {
+    const corsProxyUrl = "https://cors-anywhere.herokuapp.com/";
+    const apiUrl = "https://hoblist.com/api/movieList";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        category: selectedCategory,
+        language: selectedLanguage,
+        genre: selectedGenre,
+        sort: selectedSort,
+      }),
+    };
+    setLoading(true);
     try {
-      const response = await fetch("https://hoblist.com/api/movieList", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          category: selectedCategory,
-          language: selectedLanguage,
-          genre: selectedGenre,
-          sort: selectedSort,
-        }),
-      });
+      const response = await fetch(`${corsProxyUrl}${apiUrl}`, options);
       const data = await response.json();
       setMovies(data.result);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
     }
@@ -122,7 +129,7 @@ const HomePage = () => {
           </select>
         </div>
         <ul className="list-items-container">
-          {movies ? (
+          {!Loading ? (
             movies.map((movie) => (
               <li key={movie._id} className="list-item">
                 <div className="movie-detils-container">
@@ -156,11 +163,16 @@ const HomePage = () => {
                   </div>
                 </div>
                 <button>Watch Trailer</button>
-                <hr className="hr-line"/>
+                <hr className="hr-line" />
               </li>
             ))
           ) : (
-            <p>Loading...</p>
+            <ReactLoading
+              type={"spin"}
+              color={"#fff"}
+              height={"20%"}
+              width={"5%"}
+            />
           )}
         </ul>
       </div>
