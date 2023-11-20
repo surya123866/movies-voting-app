@@ -2,15 +2,58 @@ import React, { useEffect, useState } from "react";
 import { BiSolidUpvote, BiSolidDownvote } from "react-icons/bi";
 import { format } from "date-fns";
 import ReactLoading from "react-loading";
-
-import "./index.scss";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import NoPoster from "../../No poster availble.jpg";
+import "./index.scss";
+import moviesData from "./data";
+
+const MovieItem = ({ movie }) => {
+  const getDate = (unixTimestamp) => {
+    const timestampInMilliseconds = unixTimestamp * 1000;
+    return format(new Date(timestampInMilliseconds), "dd MMM yyyy");
+  };
+
+  return (
+    <li key={movie._id} className="list-item">
+      <div className="movie-detils-container">
+        <div className="image-and-voting-container">
+          <div className="votes-container">
+            <BiSolidUpvote />
+            <p>{movie.totalVoted}</p>
+            <BiSolidDownvote />
+            <p>Votes</p>
+          </div>
+          <img
+            className="image"
+            src={movie.poster ? `${movie.poster}` : NoPoster}
+            alt={movie.title}
+          />
+        </div>
+        <div className="movie-details-text-container">
+          <h3>{movie.title}</h3>
+          <p>Genre: {movie.genre}</p>
+          <p>Director: {movie.director}</p>
+          <p>Starring: {movie.stars}</p>
+          <p>Language: {movie.language}</p>
+          <p>
+            {movie.runtime} Mins | {movie.language} |{" "}
+            {getDate(movie.releasedDate)}
+          </p>
+          <p>
+            Views: {movie.pageViews} | Voted By {movie.totalVoted} People
+          </p>
+        </div>
+      </div>
+      <button>Watch Trailer</button>
+      <hr className="hr-line" />
+    </li>
+  );
+};
 
 const HomePage = () => {
   const [movies, setMovies] = useState([]);
-  const [Loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("movies");
   const [selectedLanguage, setSelectedLanguage] = useState("kannada");
   const [selectedGenre, setSelectedGenre] = useState("all");
@@ -18,11 +61,9 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchMovies();
-  }, []);
+  }, [selectedCategory, selectedLanguage, selectedGenre, selectedSort]);
 
   const fetchMovies = async () => {
-    const corsProxyUrl = "https://cors-anywhere.herokuapp.com/";
-    const apiUrl = "https://hoblist.com/api/movieList";
     const options = {
       method: "POST",
       headers: {
@@ -35,45 +76,37 @@ const HomePage = () => {
         sort: selectedSort,
       }),
     };
+
     setLoading(true);
+
     try {
-      const response = await fetch(`${corsProxyUrl}${apiUrl}`, options);
+      const response = await fetch(
+        "https://hoblist.com/api/movieList",
+        options
+      );
       const data = await response.json();
       setMovies(data.result);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    fetchMovies();
   };
 
   const handleLanguageChange = (language) => {
     setSelectedLanguage(language);
-    fetchMovies();
   };
 
   const handleGenreChange = (genre) => {
     setSelectedGenre(genre);
-    fetchMovies();
   };
 
   const handleSortChange = (sortOption) => {
     setSelectedSort(sortOption);
-    fetchMovies();
-  };
-
-  const getDate = (unixTimestamp) => {
-    const timestampInMilliseconds = unixTimestamp * 1000;
-    const formattedDate = format(
-      new Date(timestampInMilliseconds),
-      "dd MMM yyyy"
-    );
-
-    return formattedDate;
   };
 
   return (
@@ -129,43 +162,14 @@ const HomePage = () => {
           </select>
         </div>
         <ul className="list-items-container">
-          {!Loading ? (
-            movies.map((movie) => (
-              <li key={movie._id} className="list-item">
-                <div className="movie-detils-container">
-                  <div className="image-and-voting-container">
-                    <div className="votes-container">
-                      <BiSolidUpvote />
-                      <p>{movie.totalVoted}</p>
-                      <BiSolidDownvote />
-                      <p>Votes</p>
-                    </div>
-                    <img
-                      className="image"
-                      src={movie.poster ? `${movie.poster}` : NoPoster}
-                      alt={movie.title}
-                    />
-                  </div>
-                  <div className="movie-details-text-container">
-                    <h3>{movie.title}</h3>
-                    <p>Genre: {movie.genre}</p>
-                    <p>director: {movie.director}</p>
-                    <p>Staring: {movie.stars}</p>
-                    <p>Language: {movie.language}</p>
-                    <p>
-                      {movie.runtime} Mins | {movie.language} |{" "}
-                      {getDate(movie.releasedDate)}
-                    </p>
-                    <p>
-                      Views: {movie.pageViews} | Voted By {movie.totalVoted}{" "}
-                      People
-                    </p>
-                  </div>
-                </div>
-                <button>Watch Trailer</button>
-                <hr className="hr-line" />
-              </li>
-            ))
+          {!loading ? (
+            movies.length === 0 ? (
+              moviesData.map((movie) => (
+                <MovieItem key={movie._id} movie={movie} />
+              ))
+            ) : (
+              movies.map((movie) => <MovieItem key={movie._id} movie={movie} />)
+            )
           ) : (
             <ReactLoading
               type={"spin"}
